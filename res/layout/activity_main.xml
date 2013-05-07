@@ -58,20 +58,11 @@
         android:textColor="@android:color/white"
         android:textSize="48sp" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:textIsSelectable="false"
-        android:textSize="40sp" />
-
     <net.gnomeffinway.sarcatstic.OutlineTextView
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/textView3"
+        android:layout_above="@+id/slidingDrawer1"
         android:layout_alignParentLeft="true"
         android:gravity="center_horizontal"
         android:paddingLeft="10dp"
@@ -81,13 +72,12 @@
         android:textColor="@android:color/white"
         android:textSize="48sp" />
 
-    <SlidingDrawer
+    <net.gnomeffinway.sarcatstic.WrappingSlidingDrawer
         android:id="@+id/slidingDrawer1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:layout_below="@+id/textView2"
         android:content="@+id/toolbar"
         android:handle="@+id/imageView3" >
 
@@ -104,7 +94,7 @@
 	        <ImageButton
 	            android:id="@+id/favorite"
 	            style="@style/ToolbarButton"
-	            android:src="@drawable/ic_fav_false"
+            	android:background="@drawable/fav_false_button" 
 	            android:text="" >
 
 	        </ImageButton>
@@ -113,7 +103,7 @@
 	    	    android:id="@+id/gallery"
 	    	    style="@style/ToolbarButton"
 	    	    android:layout_centerHorizontal="true"
-	    	    android:src="@drawable/ic_gallery"
+            	android:background="@drawable/gallery_button" 
 	    	    android:text="" >
 
 	        </ImageButton>
@@ -121,7 +111,7 @@
 	        <ImageButton
 	            android:id="@+id/config"
 	            style="@style/ToolbarButtonRight"
-	            android:src="@drawable/ic_config"
+            	android:background="@drawable/config_button" 
 	            android:text="" >
 
 	        </ImageButton>
@@ -197,7 +187,7 @@
         </LinearLayout>
         -->
 
-    </SlidingDrawer>
+    </net.gnomeffinway.sarcatstic.WrappingSlidingDrawer>
 
     <ProgressBar
         android:id="@+id/progressBar1"
