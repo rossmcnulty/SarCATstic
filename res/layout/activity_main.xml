@@ -1,0 +1,209 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    tools:context=".MainActivity" >
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" 
+        android:contentDescription="@string/cat_face"/>
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:weightSum="1" >
+
+        <View
+            android:id="@+id/view1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.15" />
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="0dp"
+            android:layout_height="300dp"
+            android:layout_weight="0.7" />
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.15" />
+
+    </LinearLayout>
+    
+    <net.gnomeffinway.sarcatstic.OutlineTextView
+        android:shadowColor="#000"
+    	android:shadowRadius="2.2"
+        android:id="@+id/textView1"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:textColor="@android:color/white"
+        android:textSize="48sp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:textIsSelectable="false"
+        android:textSize="40sp" />
+
+    <net.gnomeffinway.sarcatstic.OutlineTextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textView3"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_horizontal"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:shadowColor="#000"
+        android:shadowRadius="2.2"
+        android:textColor="@android:color/white"
+        android:textSize="48sp" />
+
+    <SlidingDrawer
+        android:id="@+id/slidingDrawer1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/textView2"
+        android:content="@+id/toolbar"
+        android:handle="@+id/imageView3" >
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_sarcatstic_bar_handle" 
+            android:contentDescription="Menu Bar Handle"/>
+        
+        <RelativeLayout android:id="@+id/toolbar"
+    		style="@style/Toolbar">
+
+	        <ImageButton
+	            android:id="@+id/favorite"
+	            style="@style/ToolbarButton"
+	            android:src="@drawable/ic_fav_false"
+	            android:text="" >
+
+	        </ImageButton>
+	
+	    	<ImageButton
+	    	    android:id="@+id/gallery"
+	    	    style="@style/ToolbarButton"
+	    	    android:layout_centerHorizontal="true"
+	    	    android:src="@drawable/ic_gallery"
+	    	    android:text="" >
+
+	        </ImageButton>
+	
+	        <ImageButton
+	            android:id="@+id/config"
+	            style="@style/ToolbarButtonRight"
+	            android:src="@drawable/ic_config"
+	            android:text="" >
+
+	        </ImageButton>
+        
+        </RelativeLayout>
+<!--  
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/btn_sarcatstic_bar"
+            android:orientation="horizontal"
+            android:weightSum="1" >
+
+            <View
+                android:id="@+id/view3"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".12" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".10"
+                android:background="@drawable/ic_fav" />
+
+            <View
+                android:id="@+id/view4"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".12" />
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".10"
+                android:background="@drawable/ic_create" />
+
+            <View
+                android:id="@+id/view6"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".12" />
+
+            <Button
+                android:id="@+id/button4"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".10"
+                android:background="@drawable/ic_gallery" />
+
+            <View
+                android:id="@+id/view5"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".12" />
+
+            <Button
+                android:id="@+id/button5"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".10"
+                android:background="@drawable/ic_config" />
+
+            <View
+                android:id="@+id/view7"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".12" />
+
+        </LinearLayout>
+        -->
+
+    </SlidingDrawer>
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+</RelativeLayout>
