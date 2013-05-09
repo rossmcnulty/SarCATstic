@@ -27,28 +27,29 @@ public class Util {
     }
     
     
-    public static void updateQuips(JSONObject data, String[] stringArray, Context context) {
+    public static void updateQuips(JSONObject data, Quip[] quipArray, Context context, QuipsDataSource datasource) {
         if(data == null) {
             Toast.makeText(context, "Unable to retrieve data", Toast.LENGTH_LONG).show();
         } else {
             try {
                 JSONArray jsonPosts = data.getJSONArray("sarcatstic");
-                stringArray = new String[jsonPosts.length()];
+                quipArray = new Quip[jsonPosts.length()];
                 for(int x = 0; x<jsonPosts.length(); x++) {
                     JSONObject post = jsonPosts.getJSONObject(x);
                     String title = post.getString("quip");
                     title = Html.fromHtml(title).toString();
-                    stringArray[x] = title;
+                    long webId = post.getInt("id");
+                    quipArray[x] = new Quip(title, webId);
                 }
             } catch (JSONException e) {
                 Log.e(MainActivity.TAG, "Exception caught", e);
             }
-            saveArray(stringArray, context);
+            saveArray(quipArray, context, datasource);
         }
     }
     
     
-    public static void updateQuipsUS(JSONObject data, String[] stringArray, Context context) {
+/*    public static void updateQuipsUS(JSONObject data, String[] stringArray, Context context) {
         if(data == null) {
             Toast.makeText(context, "Unable to retrieve data", Toast.LENGTH_LONG).show();
         } else {
@@ -66,23 +67,17 @@ public class Util {
             }
             saveArrayUS(stringArray, context);
         }
-    }
+    }*/
     
     
-    public static void saveArray(String[] stringArray, Context context) {
-        SharedPreferences storage = context.getSharedPreferences(MainActivity.PREFS_FILE, 0);
-        SharedPreferences.Editor editor = storage.edit();
-        
-        for(int i=0; i<stringArray.length; i++) {
-            editor.putString("quip_"+i, stringArray[i]);
+    public static void saveArray(Quip[] quipArray, Context context, QuipsDataSource datasource) {
+        for(int i=0; i<quipArray.length; i++) {
+            Quip quip = quipArray[i];
+            datasource.createQuip(quip.getQuip(), quip.getWebId());
         }
-        
-        editor.putInt("quip_amount", stringArray.length);
-        editor.commit();
-        Log.d(MainActivity.TAG, "Array Saved");
     }
     
-    public static void saveArrayUS(String[] stringArray, Context context) {
+/*    public static void saveArrayUS(String[] stringArray, Context context) {
         SharedPreferences storage = context.getSharedPreferences(MainActivity.PREFS_FILE, 0);
         SharedPreferences.Editor editor = storage.edit();
         
@@ -93,9 +88,13 @@ public class Util {
         editor.putInt("quip_US_amount", stringArray.length);
         editor.commit();
         Log.d(MainActivity.TAG, "Array SavedUS");
-    }
+    }*/
     
-    public static String[] retrieveArray(Context context) {
+/*    public static Quip[] retrieveArray(Context context, QuipsDataSource datasource) {
+        
+        
+        
+        
         SharedPreferences storage = context.getSharedPreferences(MainActivity.PREFS_FILE, 0);
         int arrayLength = storage.getInt("quip_amount", 0);
         String[] stringArray = new String[arrayLength];
@@ -103,12 +102,13 @@ public class Util {
         for(int i=0; i<arrayLength; i++) {
             stringArray[i] = storage.getString("quip_"+i, "");
         }
+        
         Log.d(MainActivity.TAG, "Array Retrieved: " + stringArray[0]);
 
         return stringArray;
-    }
+    }*/
     
-    public static String[] retrieveArrayUS(Context context) {
+/*    public static String[] retrieveArrayUS(Context context) {
         SharedPreferences storage = context.getSharedPreferences(MainActivity.PREFS_FILE, 0);
         int arrayLength = storage.getInt("quip_US_amount", 0);
         String[] stringArray = new String[arrayLength];
@@ -119,6 +119,6 @@ public class Util {
         Log.d(MainActivity.TAG, "ArrayUS Retrieved: " + stringArray[0]);
 
         return stringArray;
-    }
+    }*/
     
 }

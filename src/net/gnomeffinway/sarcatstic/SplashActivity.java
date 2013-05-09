@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,7 +24,9 @@ public class SplashActivity extends Activity {
     // Set the display time, in milliseconds (or extract it out as a configurable parameter)
     private final int SPLASH_DISPLAY_LENGTH = 3000;
     protected JSONObject sarcatsticData;
-    String[] quips;
+    Quip[] quips;
+    SharedPreferences sp;
+
  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,19 +37,21 @@ public class SplashActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences sp = getSharedPreferences(MainActivity.PREFS_FILE, 0);
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
+
         // Obtain the sharedPreference, default to true if not available
         boolean isSplashEnabled = sp.getBoolean("isSplashEnabled", true);
-        boolean hasStoredQuips = (sp.getString("quip_0", null) != null);
+        
+        boolean hasStoredQuips = sp.getBoolean("stored-quips", false);
         boolean forceUpdateCache = sp.getBoolean("update-cache", false);
         
         if(!hasStoredQuips || forceUpdateCache) {
             if(Util.isNetWorkAvailable(this)) {
                 GetQuipsTask getPosts = new GetQuipsTask();
                 getPosts.execute();
-                sp.edit().putBoolean("pause_update", false);
+                sp.edit().putBoolean("pause_update", false).commit();
             } else {
-                sp.edit().putBoolean("pause_update", true);
+                sp.edit().putBoolean("pause_update", true).commit();
                 Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
             }
         }
@@ -72,9 +77,14 @@ public class SplashActivity extends Activity {
     }
 
     private class GetQuipsTask extends AsyncTask<Object, Void, JSONObject> {
+        
+        QuipsDataSource datasource;
 
         @Override
         protected JSONObject doInBackground(Object... arg0) {
+            datasource = new QuipsDataSource(getApplicationContext());
+            datasource.open();
+            
             int responseCode = -1;
             JSONObject jsonResponse = null;
             
@@ -109,7 +119,8 @@ public class SplashActivity extends Activity {
         @Override
         protected void onPostExecute(JSONObject result) {
             sarcatsticData = result;
-            Util.updateQuips(sarcatsticData, quips, getApplicationContext());
+            Util.updateQuips(sarcatsticData, quips, getApplicationContext(), datasource);
+            sp.edit().putBoolean("stored-quips", true).commit();
         }
         
     }
