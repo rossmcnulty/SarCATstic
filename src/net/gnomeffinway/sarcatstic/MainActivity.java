@@ -123,18 +123,29 @@ public class MainActivity extends Activity {
         if(!firstQuipShown)
             return;
         
+        if(respondent.getCurrentQuip() == null) {
+            Log.e(TAG, "Current respondent quip null, can't denote favorite status");
+            return;
+        }
+        
         long currentId = respondent.getCurrentQuip().getWebId();
         
         if(currentId == -1)
             return;
         
-        boolean favorited = prefs.getBoolean("fav-" + currentId, false);
+        Set<String> favList = new HashSet<String>(prefs.getStringSet("favs", new HashSet<String>()));
+                
+        boolean favorited = favList.contains(String.valueOf(currentId));
         
         if(favorited) {
-            prefs.edit().remove("fav-" + currentId).commit();
+            favList.remove(String.valueOf(currentId));
+            prefs.edit().putStringSet("favs", favList).commit();
+            Log.d(TAG, prefs.getStringSet("favs", new HashSet<String>()).toString());
             favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_false_button));
         } else {
-            prefs.edit().putBoolean("fav-" + currentId, true).commit();
+            favList.add(String.valueOf(currentId));
+            prefs.edit().putStringSet("favs", favList).commit();
+            Log.d(TAG, prefs.getStringSet("favs", new HashSet<String>()).toString());
             favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_true_button));
         }
     }
@@ -152,13 +163,21 @@ public class MainActivity extends Activity {
         
         long currentId = respondent.getCurrentQuip().getWebId();
                 
-        boolean favorited = prefs.getBoolean("fav-" + currentId, false);
+        Set<String> favSet = new HashSet<String>(prefs.getStringSet("favs", new HashSet<String>()));
+        
+        if(favSet.contains(String.valueOf(currentId))) {
+            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_true_button));
+        } else {
+            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_false_button));
+        }
+                    
+/*        boolean favorited = prefs.getBoolean("fav-" + currentId, false);
         
         if(favorited) {
             favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_true_button));
         } else {
             favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_false_button));
-        }
+        }*/
     }
 
     @Override
