@@ -5,23 +5,27 @@ import android.widget.TextView;
 
 public class Respondent {
     
+    public static final String TAG = Respondent.class.getSimpleName();
+    
     // Pastebin: http://pastebin.com/rtWtwhvx
 
-    Quip[] quips = {};
-    Quip[] backup = { new Quip("Hmm|Cat's got my tongue", -1) };
-    int pos = 0;
+    Quip[] quips = { new Quip("Hmm|Cat's got my tongue", -1) };
+    int pos = -1;
     
     public void nextResponse(TextView top, TextView bottom) {
         if(!hasQuips()) {
-            Log.d(MainActivity.TAG, "No quips in Respondent");
-            quips = backup;
+            Log.d(TAG, "No quips in Respondent");
+            return;
         }
-        top.setText(quips[pos].toString().substring(0, quips[pos].toString().indexOf("|")));
-        bottom.setText(quips[pos].toString().substring(quips[pos].toString().indexOf("|")+1));
+        
         if(pos < quips.length-1)
             pos++;
         else
             pos = 0;
+        
+        top.setText(quips[pos].toString().substring(0, quips[pos].toString().indexOf("|")));
+        bottom.setText(quips[pos].toString().substring(quips[pos].toString().indexOf("|")+1));
+
     }
     
     public Quip getCurrentQuip() {
@@ -33,7 +37,7 @@ public class Respondent {
     }
     
     public boolean hasQuips() {
-        return quips.length > 0;
+        return quips[0].getWebId() != -1;
     }
     
     public void clearIndex() {

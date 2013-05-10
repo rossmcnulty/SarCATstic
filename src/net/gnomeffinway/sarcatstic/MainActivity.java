@@ -19,7 +19,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -57,19 +56,23 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = getSharedPreferences(SplashActivity.PREFS_FILE, MODE_PRIVATE);
 
         datasource = new QuipsDataSource(this);
         datasource.open();
+        
+        Log.v(TAG, "Contains stored-quips: " + prefs.contains("stored-quips"));
                 
-        boolean hasStoredQuips = true;
-        boolean forceUpdateCache = prefs.getBoolean("update-cache", false);
+        boolean hasStoredQuips = prefs.getBoolean("stored-quips", false);
+        // boolean forceUpdateCache = prefs.getBoolean("update-cache", false);
         
         if(hasStoredQuips) {
             Log.d(TAG, "Generating quips from storage");
             Object[] objArray = datasource.getAllQuips().toArray();
             Quip[] retrievedArray = Arrays.copyOf(objArray, objArray.length, Quip[].class);
             respondent.setQuips(retrievedArray);
+        } else {
+            Log.d(TAG, "No quips stored");
         }
         
         Button faceButton = (Button) findViewById(R.id.button1);
@@ -87,11 +90,6 @@ public class MainActivity extends Activity {
         Typeface impact = Typeface.createFromAsset(getAssets(), "fonts/impact.ttf");
         topText.setTypeface(impact);
         bottomText.setTypeface(impact);
-        
-        if(prefs.getStringSet("favorites", null) != null && 
-                prefs.getStringSet("favorites", null).contains(respondent.getCurrentQuip().getWebId())) {
-            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_true_button));
-        }
         
         faceButton.setVisibility(View.VISIBLE);
         faceButton.setBackgroundColor(Color.TRANSPARENT);
@@ -120,21 +118,46 @@ public class MainActivity extends Activity {
         });*/
     }
     
+    @SuppressWarnings("deprecation")
     private void toggleFavorite() {
         if(!firstQuipShown)
             return;
         
         long currentId = respondent.getCurrentQuip().getWebId();
-        Set<String> favs = prefs.getStringSet("favorites", new HashSet<String>());
         
-        if(favs.contains(String.valueOf(currentId))) {
-            favs.remove(String.valueOf(currentId));
+        if(currentId == -1)
+            return;
+        
+        boolean favorited = prefs.getBoolean("fav-" + currentId, false);
+        
+        if(favorited) {
+            prefs.edit().remove("fav-" + currentId).commit();
             favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_false_button));
         } else {
-            favs.add("" + currentId);
-            prefs.edit().putStringSet("favorites", favs).commit();
-            Log.d(TAG, "Id added " + currentId);
+            prefs.edit().putBoolean("fav-" + currentId, true).commit();
             favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_true_button));
+        }
+    }
+    
+    @SuppressWarnings("deprecation")
+    public void handleNextResponse() {
+        if(!firstQuipShown)
+            firstQuipShown = true;
+        respondent.nextResponse(topText, bottomText);
+        
+        if(respondent.getCurrentQuip() == null) {
+            Log.e(TAG, "Current respondent quip null, can't determine favorite status");
+            return;
+        }
+        
+        long currentId = respondent.getCurrentQuip().getWebId();
+                
+        boolean favorited = prefs.getBoolean("fav-" + currentId, false);
+        
+        if(favorited) {
+            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_true_button));
+        } else {
+            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_false_button));
         }
     }
 
@@ -148,6 +171,7 @@ public class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        updateOnPause = prefs.getBoolean("pause-update", false);
         if(!updateOnPause)
             return;
         if(Util.isNetWorkAvailable(this)) {
@@ -167,19 +191,6 @@ public class MainActivity extends Activity {
     @Override protected void onPause() {
         datasource.close();
         super.onPause();
-    }
-  
-    public void handleNextResponse() {
-        if(!firstQuipShown)
-            firstQuipShown = true;
-        respondent.nextResponse(topText, bottomText);
-        if(prefs.getStringSet("favorites", new HashSet<String>()).contains("" + respondent.getCurrentQuip().getWebId())) {
-            Log.d(TAG, "Does contain " + respondent.getCurrentQuip().getWebId());
-            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_true_button));
-        } else {
-            Log.d(TAG, "Does not contain " + respondent.getCurrentQuip().getWebId());
-            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_false_button));
-        }
     }
     
 /*    private void toggleUserSubmitted() {

@@ -16,16 +16,20 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 public class SplashActivity extends Activity {
     // Set the display time, in milliseconds (or extract it out as a configurable parameter)
     private final int SPLASH_DISPLAY_LENGTH = 3000;
+    private static final String TAG = SplashActivity.class.getSimpleName();
+    public static final String PREFS_FILE = "quip-prefs";
     protected JSONObject sarcatsticData;
+    private Handler getQuipsHandler;
+    private Runnable getQuipsRunnable;
+    private GetQuipsTask getQuips;
     Quip[] quips;
-    SharedPreferences sp;
+    SharedPreferences prefs;
 
  
     @Override
@@ -37,43 +41,55 @@ public class SplashActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        sp = PreferenceManager.getDefaultSharedPreferences(this);
-
-        // Obtain the sharedPreference, default to true if not available
-        boolean isSplashEnabled = sp.getBoolean("isSplashEnabled", true);
+        prefs = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
         
-        boolean hasStoredQuips = sp.getBoolean("stored-quips", false);
-        boolean forceUpdateCache = sp.getBoolean("update-cache", false);
+        // Obtain the sharedPreference, default to true if not available
+        boolean isSplashEnabled = prefs.getBoolean("isSplashEnabled", true);
+        
+        boolean hasStoredQuips = prefs.getBoolean("stored-quips", false);
+        boolean forceUpdateCache = prefs.getBoolean("update-cache", false);
         
         if(!hasStoredQuips || forceUpdateCache) {
             if(Util.isNetWorkAvailable(this)) {
-                GetQuipsTask getPosts = new GetQuipsTask();
-                getPosts.execute();
-                sp.edit().putBoolean("pause_update", false).commit();
+                Log.d(TAG, "Retrieving posts");
+                getQuips = new GetQuipsTask();
+                getQuips.execute();
+                prefs.edit().putBoolean("pause-update", false).commit();
             } else {
-                sp.edit().putBoolean("pause_update", true).commit();
+                prefs.edit().putBoolean("pause-update", true).commit();
                 Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
             }
+        } else {
+            Log.d(TAG, "Has stored quips and cache not forced to update");
         }
         
+        getQuipsHandler = new Handler();
+        getQuipsRunnable = new Runnable() {
+            @Override
+            public void run() {
+                //Finish the splash activity so it can't be returned to.
+                SplashActivity.this.finish();
+                // Create an Intent that will start the main activity.
+                Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
+                SplashActivity.this.startActivity(mainIntent);
+            }
+        };
+        
         if (isSplashEnabled) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    //Finish the splash activity so it can't be returned to.
-                    SplashActivity.this.finish();
-                    // Create an Intent that will start the main activity.
-                    Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
-                    SplashActivity.this.startActivity(mainIntent);
-                }
-            }, SPLASH_DISPLAY_LENGTH);
-        }
-        else {
+            getQuipsHandler.postDelayed(getQuipsRunnable, SPLASH_DISPLAY_LENGTH);
+        } else {
             // if the splash is not enabled, then finish the activity immediately and go to main.
             finish();
             Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
             SplashActivity.this.startActivity(mainIntent);
         }
+    }
+    
+    @Override 
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "Removing callbacks");
+        getQuipsHandler.removeCallbacks(getQuipsRunnable);
     }
 
     private class GetQuipsTask extends AsyncTask<Object, Void, JSONObject> {
@@ -103,14 +119,14 @@ public class SplashActivity extends Activity {
                     
                     jsonResponse = new JSONObject(responseData);
                 } else {
-                    Log.i(MainActivity.TAG, "Unsuccessful Http response code: " + responseCode);
+                    Log.i(TAG, "Unsuccessful Http response code: " + responseCode);
                 }
             } catch(MalformedURLException e) {
-                Log.e(MainActivity.TAG, "Malformed URL Exception caught", e);
+                Log.e(TAG, "Malformed URL Exception caught", e);
             } catch(IOException e) {
-                Log.e(MainActivity.TAG, "IO Exception caught", e);
+                Log.e(TAG, "IO Exception caught", e);
             } catch(Exception e) {
-                Log.e(MainActivity.TAG, "Generic Exception caught", e);
+                Log.e(TAG, "Generic Exception caught", e);
             }
             
             return jsonResponse;
@@ -119,8 +135,11 @@ public class SplashActivity extends Activity {
         @Override
         protected void onPostExecute(JSONObject result) {
             sarcatsticData = result;
-            Util.updateQuips(sarcatsticData, quips, getApplicationContext(), datasource);
-            sp.edit().putBoolean("stored-quips", true).commit();
+            boolean successful = Util.updateQuips(sarcatsticData, quips, getApplicationContext(), datasource);
+            if(successful) {
+                Log.d(TAG, "Logging stored-quips into prefs");
+                prefs.edit().putBoolean("stored-quips", true).commit();
+            }
         }
         
     }

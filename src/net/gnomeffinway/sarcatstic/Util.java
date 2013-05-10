@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import android.app.Service;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.Html;
@@ -15,6 +14,7 @@ import android.widget.Toast;
 
 public class Util {
 
+    public static final String TAG = Util.class.getSimpleName();
     
     public static boolean isNetWorkAvailable(Context context) {
         ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Service.CONNECTIVITY_SERVICE);
@@ -27,9 +27,10 @@ public class Util {
     }
     
     
-    public static void updateQuips(JSONObject data, Quip[] quipArray, Context context, QuipsDataSource datasource) {
+    public static boolean updateQuips(JSONObject data, Quip[] quipArray, Context context, QuipsDataSource datasource) {
         if(data == null) {
             Toast.makeText(context, "Unable to retrieve data", Toast.LENGTH_LONG).show();
+            return false;
         } else {
             try {
                 JSONArray jsonPosts = data.getJSONArray("sarcatstic");
@@ -42,9 +43,11 @@ public class Util {
                     quipArray[x] = new Quip(title, webId);
                 }
             } catch (JSONException e) {
-                Log.e(MainActivity.TAG, "Exception caught", e);
+                Log.e(TAG, "Exception caught", e);
+                return false;
             }
             saveArray(quipArray, context, datasource);
+            return true;
         }
     }
     
@@ -63,7 +66,7 @@ public class Util {
                     stringArray[x] = title;
                 }
             } catch (JSONException e) {
-                Log.e(MainActivity.TAG, "Exception caught", e);
+                Log.e(TAG, "Exception caught", e);
             }
             saveArrayUS(stringArray, context);
         }
@@ -87,7 +90,7 @@ public class Util {
         
         editor.putInt("quip_US_amount", stringArray.length);
         editor.commit();
-        Log.d(MainActivity.TAG, "Array SavedUS");
+        Log.d(TAG, "Array SavedUS");
     }*/
     
 /*    public static Quip[] retrieveArray(Context context, QuipsDataSource datasource) {
@@ -103,7 +106,7 @@ public class Util {
             stringArray[i] = storage.getString("quip_"+i, "");
         }
         
-        Log.d(MainActivity.TAG, "Array Retrieved: " + stringArray[0]);
+        Log.d(TAG, "Array Retrieved: " + stringArray[0]);
 
         return stringArray;
     }*/
@@ -116,7 +119,7 @@ public class Util {
         for(int i=0; i<arrayLength; i++) {
             stringArray[i] = storage.getString("quip_US_"+i, "");
         }
-        Log.d(MainActivity.TAG, "ArrayUS Retrieved: " + stringArray[0]);
+        Log.d(TAG, "ArrayUS Retrieved: " + stringArray[0]);
 
         return stringArray;
     }*/
