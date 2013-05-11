@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,12 +84,7 @@ public class MainActivity extends FragmentActivity {
         } else {
             Log.d(TAG, "No quips stored");
         }
-        
-        quipPager = new QuipPagerAdapter(getSupportFragmentManager(), responseCount, respondent);
 
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(quipPager);
-        
         Button faceButton = (Button) findViewById(R.id.button1);
         
         favButton = (ImageButton) findViewById(R.id.favorite);
@@ -98,15 +94,20 @@ public class MainActivity extends FragmentActivity {
         loading = (ProgressBar) findViewById(R.id.progressBar1);
         loading.setVisibility(View.GONE);
         
+        quipPager = new QuipPagerAdapter(getSupportFragmentManager(), responseCount);
+
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(quipPager);
+        
         faceButton.setVisibility(View.VISIBLE);
         faceButton.setBackgroundColor(Color.TRANSPARENT);
-        faceButton.setOnClickListener(new OnClickListener() {
+/*        faceButton.setOnClickListener(new OnClickListener() {
             
             @Override
             public void onClick(View v) {
                 handleNextResponse();
             }
-        });
+        });*/
         
         favButton.setOnClickListener(new OnClickListener() {
             
@@ -127,9 +128,6 @@ public class MainActivity extends FragmentActivity {
     
     @SuppressWarnings("deprecation")
     private void toggleFavorite() {
-        if(!firstQuipShown)
-            return;
-        
         if(respondent.getCurrentQuip() == null) {
             Log.e(TAG, "Current respondent quip null, can't denote favorite status");
             return;
@@ -161,12 +159,20 @@ public class MainActivity extends FragmentActivity {
     public void handleNextResponse() {
         if(!firstQuipShown)
             firstQuipShown = true;
-        respondent.nextResponse();
+/*        respondent.nextResponse();
         
         if(respondent.getCurrentQuip() == null) {
             Log.e(TAG, "Current respondent quip null, can't determine favorite status");
             return;
+        }*/
+        
+/*        int index = quipPager.getIndex();
+        
+        if(index + 2 == quipPager.getCount()) {
+            index = -1;
         }
+
+        quipPager.setPrimaryItem(mViewPager, index + 1, quipPager.getItem(index + 1));*/
         
         long currentId = respondent.getCurrentQuip().getWebId();
                 
@@ -222,42 +228,82 @@ public class MainActivity extends FragmentActivity {
         }
     }*/
     
-    public static class QuipPagerAdapter extends FragmentStatePagerAdapter {
+    private class QuipPagerAdapter extends FragmentStatePagerAdapter {
 
-        Respondent respondent;
         int count;
+        int previousIndex;
         
-        public QuipPagerAdapter(FragmentManager fm, int count, Respondent respondent) {
+        public QuipPagerAdapter(FragmentManager fm, int count) {
             super(fm);
             this.count = count;
-            this.respondent = respondent;
+            previousIndex = 0;
+        }
+        
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            Log.d(TAG, "Destroying position " + position);
+            FragmentManager manager = ((Fragment)object).getFragmentManager();
+            FragmentTransaction trans = manager.beginTransaction();
+            trans.remove((Fragment)object);
+            trans.commit();
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public Fragment getItem(int i) {
             Fragment fragment = new QuipFragment();
             Bundle args = new Bundle();
-            
+                        
+            Log.d(TAG, "Current index: " + i);
+
             if(i == 0) {
-                args.putInt("current-count", i+1);
-                args.putInt("max-count", count);
                 args.putString("top-quip", "");
                 args.putString("bottom-quip", "");
-            } else {
+            } else if(previousIndex < i) {
+                long currentId = respondent.getCurrentQuip().getWebId();
+                
+                Set<String> favSet = new HashSet<String>(prefs.getStringSet("favs", new HashSet<String>()));
+                
+                if(favSet.contains(String.valueOf(currentId))) {
+                    favButton.setBackgroundDrawable(favButton.getContext().getResources()
+                            .getDrawable(R.drawable.fav_true_button));
+                } else {
+                    favButton.setBackgroundDrawable(favButton.getContext().getResources()
+                            .getDrawable(R.drawable.fav_false_button));
+                }
+                Log.d(TAG, "Went forwards");
                 respondent.nextResponse();
-                args.putInt("current-count", i+1);
-                args.putInt("max-count", count);
                 args.putString("top-quip", respondent.getCurrentTop());
                 args.putString("bottom-quip", respondent.getCurrentBottom());
+            } else if(previousIndex > i) {
+                long currentId = respondent.getCurrentQuip().getWebId();
+                
+                Set<String> favSet = new HashSet<String>(prefs.getStringSet("favs", new HashSet<String>()));
+                
+                if(favSet.contains(String.valueOf(currentId))) {
+                    favButton.setBackgroundDrawable(favButton.getContext().getResources()
+                            .getDrawable(R.drawable.fav_true_button));
+                } else {
+                    favButton.setBackgroundDrawable(favButton.getContext().getResources()
+                            .getDrawable(R.drawable.fav_false_button));
+                }
+                
+                Log.d(TAG, "Went backwards");
+                respondent.previousResponse();
+                args.putString("top-quip", respondent.getCurrentTop());
+                args.putString("bottom-quip", respondent.getCurrentBottom());
+            } else {
+                Log.d(TAG, "Indices the same: " + previousIndex);
             }
-
+            
+            previousIndex = i;
+            
             fragment.setArguments(args);
             return fragment;
         }
 
         @Override
         public int getCount() {
-            // For this contrived example, we have a 100-object collection.
             return count;
         }
 

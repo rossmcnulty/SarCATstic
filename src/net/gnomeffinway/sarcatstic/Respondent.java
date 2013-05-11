@@ -24,6 +24,18 @@ public class Respondent {
             pos = 0;
     }
     
+    public void previousResponse() {
+        if(!hasQuips()) {
+            Log.d(TAG, "No quips in Respondent");
+            return;
+        }
+        
+        if(pos > 0)
+            pos--;
+        else
+            pos = quips.length - 1;
+    }
+    
     public String getCurrentTop() {
         return quips[pos].toString().substring(0, quips[pos].toString().indexOf("|"));
     }
@@ -33,6 +45,8 @@ public class Respondent {
     }
     
     public Quip getCurrentQuip() {
+        if(pos == -1)
+            return quips[0];
         return quips[pos];
     }
     
