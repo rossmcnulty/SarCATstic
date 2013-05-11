@@ -3,6 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
     tools:context=".MainActivity" >
+    
+    <android.support.v4.view.ViewPager
+    android:id="@+id/pager"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/imageView1"
@@ -15,6 +20,8 @@
         android:src="@drawable/background" 
         android:contentDescription="@string/cat_face"/>
 
+    </android.support.v4.view.ViewPager>
+    
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
@@ -42,35 +49,6 @@
             android:layout_weight="0.15" />
 
     </LinearLayout>
-    
-    <net.gnomeffinway.sarcatstic.OutlineTextView
-        android:shadowColor="#000"
-    	android:shadowRadius="2.2"
-        android:id="@+id/textView1"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
-        android:gravity="center_horizontal|center_vertical"
-        android:textColor="@android:color/white"
-        android:textSize="48sp" />
-
-    <net.gnomeffinway.sarcatstic.OutlineTextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/slidingDrawer1"
-        android:layout_alignParentLeft="true"
-        android:gravity="center_horizontal"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:shadowColor="#000"
-        android:shadowRadius="2.2"
-        android:textColor="@android:color/white"
-        android:textSize="48sp" />
 
     <net.gnomeffinway.sarcatstic.WrappingSlidingDrawer
         android:id="@+id/slidingDrawer1"
@@ -117,76 +95,7 @@
 	        </ImageButton>
         
         </RelativeLayout>
-<!--  
-        <LinearLayout
-            android:id="@+id/content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/btn_sarcatstic_bar"
-            android:orientation="horizontal"
-            android:weightSum="1" >
-
-            <View
-                android:id="@+id/view3"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".12" />
-
-            <Button
-                android:id="@+id/button2"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".10"
-                android:background="@drawable/ic_fav" />
-
-            <View
-                android:id="@+id/view4"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".12" />
-
-            <Button
-                android:id="@+id/button3"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".10"
-                android:background="@drawable/ic_create" />
-
-            <View
-                android:id="@+id/view6"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".12" />
-
-            <Button
-                android:id="@+id/button4"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".10"
-                android:background="@drawable/ic_gallery" />
-
-            <View
-                android:id="@+id/view5"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".12" />
-
-            <Button
-                android:id="@+id/button5"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".10"
-                android:background="@drawable/ic_config" />
-
-            <View
-                android:id="@+id/view7"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight=".12" />
-
-        </LinearLayout>
-        -->
-
+        
     </net.gnomeffinway.sarcatstic.WrappingSlidingDrawer>
 
     <ProgressBar

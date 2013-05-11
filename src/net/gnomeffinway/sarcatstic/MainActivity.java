@@ -13,41 +13,49 @@ import java.util.Set;
 
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
     
     public static final String TAG = MainActivity.class.getSimpleName();
     final int MENU_CLOSE_DELAY = 5000;
+    int responseCount = 1;
     
     Quip[] quips;
     protected JSONObject sarcatsticData;
 
     public Respondent respondent = new Respondent();
-    OutlineTextView topText;
-    OutlineTextView bottomText;
+    
     ImageButton favButton;
     ImageButton galleryButton;
     ImageButton configButton;
-    //TODO: updateOnPause -> sharedPrefs
+    
     boolean updateOnPause = false;
     boolean inUserSubmitted = false;
     boolean firstQuipShown = false;
     ProgressBar loading;
     SharedPreferences prefs;
+    
+    ViewPager mViewPager;
+    QuipPagerAdapter quipPager;
     
     QuipsDataSource datasource;
     
@@ -55,7 +63,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+  
         prefs = getSharedPreferences(SplashActivity.PREFS_FILE, MODE_PRIVATE);
 
         datasource = new QuipsDataSource(this);
@@ -71,9 +79,15 @@ public class MainActivity extends Activity {
             Object[] objArray = datasource.getAllQuips().toArray();
             Quip[] retrievedArray = Arrays.copyOf(objArray, objArray.length, Quip[].class);
             respondent.setQuips(retrievedArray);
+            responseCount = objArray.length;
         } else {
             Log.d(TAG, "No quips stored");
         }
+        
+        quipPager = new QuipPagerAdapter(getSupportFragmentManager(), responseCount, respondent);
+
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(quipPager);
         
         Button faceButton = (Button) findViewById(R.id.button1);
         
@@ -81,15 +95,8 @@ public class MainActivity extends Activity {
         galleryButton = (ImageButton) findViewById(R.id.gallery);
         configButton = (ImageButton) findViewById(R.id.config);
                         
-        topText = (OutlineTextView) findViewById(R.id.textView1);
-        bottomText = (OutlineTextView) findViewById(R.id.textView2);
-        
         loading = (ProgressBar) findViewById(R.id.progressBar1);
         loading.setVisibility(View.GONE);
-        
-        Typeface impact = Typeface.createFromAsset(getAssets(), "fonts/impact.ttf");
-        topText.setTypeface(impact);
-        bottomText.setTypeface(impact);
         
         faceButton.setVisibility(View.VISIBLE);
         faceButton.setBackgroundColor(Color.TRANSPARENT);
@@ -154,7 +161,7 @@ public class MainActivity extends Activity {
     public void handleNextResponse() {
         if(!firstQuipShown)
             firstQuipShown = true;
-        respondent.nextResponse(topText, bottomText);
+        respondent.nextResponse();
         
         if(respondent.getCurrentQuip() == null) {
             Log.e(TAG, "Current respondent quip null, can't determine favorite status");
@@ -170,21 +177,7 @@ public class MainActivity extends Activity {
         } else {
             favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_false_button));
         }
-                    
-/*        boolean favorited = prefs.getBoolean("fav-" + currentId, false);
-        
-        if(favorited) {
-            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_true_button));
-        } else {
-            favButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.fav_false_button));
-        }*/
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
     }
     
     @Override
@@ -201,11 +194,7 @@ public class MainActivity extends Activity {
             Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
         }
     }
-    
-    public void clearDisplay() {
-        topText.setText("");
-        bottomText.setText("");
-    }
+
     
     @Override protected void onPause() {
         datasource.close();
@@ -232,6 +221,72 @@ public class MainActivity extends Activity {
             clearDisplay();
         }
     }*/
+    
+    public static class QuipPagerAdapter extends FragmentStatePagerAdapter {
+
+        Respondent respondent;
+        int count;
+        
+        public QuipPagerAdapter(FragmentManager fm, int count, Respondent respondent) {
+            super(fm);
+            this.count = count;
+            this.respondent = respondent;
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            Fragment fragment = new QuipFragment();
+            Bundle args = new Bundle();
+            
+            if(i == 0) {
+                args.putInt("current-count", i+1);
+                args.putInt("max-count", count);
+                args.putString("top-quip", "");
+                args.putString("bottom-quip", "");
+            } else {
+                respondent.nextResponse();
+                args.putInt("current-count", i+1);
+                args.putInt("max-count", count);
+                args.putString("top-quip", respondent.getCurrentTop());
+                args.putString("bottom-quip", respondent.getCurrentBottom());
+            }
+
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            // For this contrived example, we have a 100-object collection.
+            return count;
+        }
+
+    }
+    
+    public static class QuipFragment extends Fragment {
+        
+        OutlineTextView topText;
+        OutlineTextView bottomText;
+        
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.quip_fragment, container, false);
+            
+            topText = (OutlineTextView) rootView.findViewById(R.id.textView1);
+            bottomText = (OutlineTextView) rootView.findViewById(R.id.textView2);          
+                                    
+            Typeface impact = Typeface.createFromAsset(container.getContext().getAssets(), "fonts/impact.ttf");
+            topText.setTypeface(impact);
+            bottomText.setTypeface(impact);
+            
+            topText.setText(getArguments().getString("top-quip"));
+            bottomText.setText(getArguments().getString("bottom-quip"));
+            
+            return rootView;
+        }
+        
+    }
 
     public class GetQuipsTask extends AsyncTask<Boolean, Void, JSONObject> {
 

@@ -1,7 +1,6 @@
 package net.gnomeffinway.sarcatstic;
 
 import android.util.Log;
-import android.widget.TextView;
 
 public class Respondent {
     
@@ -10,9 +9,10 @@ public class Respondent {
     // Pastebin: http://pastebin.com/rtWtwhvx
 
     Quip[] quips = { new Quip("Hmm|Cat's got my tongue", -1) };
+    Quip currentQuip;
     int pos = -1;
     
-    public void nextResponse(TextView top, TextView bottom) {
+    public void nextResponse() {
         if(!hasQuips()) {
             Log.d(TAG, "No quips in Respondent");
             return;
@@ -22,10 +22,14 @@ public class Respondent {
             pos++;
         else
             pos = 0;
-        
-        top.setText(quips[pos].toString().substring(0, quips[pos].toString().indexOf("|")));
-        bottom.setText(quips[pos].toString().substring(quips[pos].toString().indexOf("|")+1));
-
+    }
+    
+    public String getCurrentTop() {
+        return quips[pos].toString().substring(0, quips[pos].toString().indexOf("|"));
+    }
+    
+    public String getCurrentBottom() {
+        return quips[pos].toString().substring(quips[pos].toString().indexOf("|")+1);
     }
     
     public Quip getCurrentQuip() {

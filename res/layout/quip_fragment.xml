@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    tools:context=".MainActivity" >
+    
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" 
+        android:contentDescription="@string/cat_face"/>
+    
+	<ImageView
+ 	    android:id="@+id/drawerSpace"
+ 	    android:layout_centerHorizontal="true"
+        android:background="@drawable/gallery_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:visibility="invisible" />
+	
+	<ImageView
+ 	    android:id="@+id/handleSpace"
+ 	    android:layout_centerHorizontal="true"
+        android:background="@drawable/btn_sarcatstic_bar_handle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/drawerSpace"
+        android:visibility="invisible" />
+    
+    <net.gnomeffinway.sarcatstic.OutlineTextView
+        android:shadowColor="#000"
+    	android:shadowRadius="2.2"
+        android:id="@+id/textView1"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:textColor="@android:color/white"
+        android:textSize="48sp" />
+
+    <net.gnomeffinway.sarcatstic.OutlineTextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_above="@+id/handleSpace"
+        android:gravity="center_horizontal"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:shadowColor="#000"
+        android:shadowRadius="2.2"
+        android:textColor="@android:color/white"
+        android:textSize="48sp" />
+
+</RelativeLayout>
