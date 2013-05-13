@@ -36,6 +36,18 @@ public class Respondent {
             pos = quips.length - 1;
     }
     
+    public void setCurrentQuip(int pos) {
+        this.pos = pos;
+    }
+    
+    public Quip getQuipByPos(int pos) {
+        return quips[pos];
+    }
+    
+    public int getIndex() {
+        return pos;
+    }
+    
     public String getCurrentTop() {
         return quips[pos].toString().substring(0, quips[pos].toString().indexOf("|"));
     }
